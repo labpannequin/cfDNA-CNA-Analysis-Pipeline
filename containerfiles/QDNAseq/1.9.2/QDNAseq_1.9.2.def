@@ -1,0 +1,52 @@
+Bootstrap: docker
+From: rocker/r-ver:4.3.2
+
+%labels
+    Description "Singularity image for QDNAseq with hg38 support (Bioconductor + GitHub)"
+
+%environment
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    export R_LIBS="/usr/local/lib/R/site-library"
+    export TMPDIR=/tmp/Rtmp
+    export R_TMPDIR=/tmp/Rtmp
+    export PATH=/usr/local/bin:$PATH
+
+%post
+    set -eux
+    export DEBIAN_FRONTEND=noninteractive
+
+    # System dependencies
+    apt-get update && apt-get install -y --no-install-recommends \
+        libncurses5-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libxml2-dev \
+        zlib1g-dev \
+        wget git build-essential ca-certificates \
+        && rm -rf /var/lib/apt/lists/*
+
+    mkdir -p /tmp/Rtmp && chmod 1777 /tmp/Rtmp
+
+    # Install essential R packages FIRST — include RCurl explicitly
+    R -q -e 'install.packages(c("RCurl", "httr", "remotes", "optparse", "future", "parallelly", "ggplot2", "data.table"), repos="https://cloud.r-project.org")'
+
+    # Install Bioconductor manager and packages
+    R -q -e 'if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager", repos="https://cloud.r-project.org")'
+    R -q -e 'BiocManager::install(c("QDNAseq", "QDNAseq.hg19", "CGHcall", "UCSC.utils", "Rsamtools", "Rhtslib"), ask=FALSE, update=TRUE, force=TRUE)'
+
+    # Install GitHub packages for hg38 and copynumber
+    R -q -e 'remotes::install_github("asntech/QDNAseq.hg38", force=TRUE)'
+
+    rm -rf /tmp/downloaded_packages /tmp/*.RData
+
+
+%runscript
+    echo "Launching R with QDNAseq available..."
+    exec R "$@"
+
+%test
+    echo "Testing QDNAseq and QDNAseq.hg38 availability..."
+    R -q -e 'library(QDNAseq); library(QDNAseq.hg38); sessionInfo()'
