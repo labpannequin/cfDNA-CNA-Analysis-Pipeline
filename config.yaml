@@ -1,0 +1,45 @@
+# All paths here are working examples, to have a functional config file you should adapt the paths to your environment
+# General paths
+paths:
+  root: "/work/project/seqrecan/snakemake_CNApipeline" # Change root according to used path
+  results: "{root}/results"
+  reference: "/work/project/seqrecan/snakemake_CNApipeline/extdata/reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa" 
+  model: "/work/project/seqrecan/snakemake_CNApipeline/extdata/dorado_model/dna_r10.4.1_e8.2_400bps_hac@v5.0.0"
+  logs: "{root}/results/logs"
+
+# R scripts (relative or absolute paths)
+scripts:
+  qdnaseq: "/work/project/seqrecan/snakemake_CNApipeline/scripts/QDNAseq.R"
+  ace: "/work/project/seqrecan/snakemake_CNApipeline/scripts/ACE.R"
+  ichorcna: "/opt/ichorCNA/scripts/runIchorCNA.R"
+
+# ichorCNA reference data
+ichorcna_refs:
+  gcwig: "/opt/ichorCNA/extdata/gc_hg38_1000kb.wig"
+  mapwig: "/opt/ichorCNA/extdata/map_hg38_1000kb.wig"
+  centromere: "/opt/ichorCNA/extdata/GRCh38.GCA_000001405.2_centromere_acen.txt"
+  # panel: "/work/project/seqrecan/snakemake_CNApipeline/extdata/normal_panel_median.rds"
+
+# Input samples: these are the tumor samples that will be used for CNA analysis
+samples_dir: "/work/project/seqrecan/snakemake_CNApipeline/data/samples"
+
+# Control samples: these are the healthy samples used as controls. CNA analysis can also be performed on these samples (see Readme.md) 
+# Directory for Panel of Normals (PoN) creation
+# If this is empty or commented out, PoN generation will be skipped
+controls_dir: "/work/project/seqrecan/snakemake_CNApipeline/data/control"
+
+# ichorCNA run parameters
+ichorcna_params:
+  genomeBuild: "hg38"
+  normalizeMaleX: False
+  chrs: "c(1:22)"
+  chrTrain: "c(1:22)"
+  chrNormalize: "c(1:22)"
+  ploidy: "c(2,3)"
+  normal: "c(0.5,0.6,0.7,0.8,0.9)"
+  maxCN: 5
+  includeHOMD: False
+  estimateNormal: True
+  estimatePloidy: True
+  estimateScPrevalence: True
+  scStates: "c()"
